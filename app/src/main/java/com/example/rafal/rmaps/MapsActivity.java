@@ -47,8 +47,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapLongClickListener(this);
     }
 
+    public void onSearchClick() {
+
+    }
+
     @Override
     public void onMapLongClick(LatLng latLng) {
+        if (p != null)
+            p.remove();
         p = mMap.addMarker(new MarkerOptions().position(latLng));
         new ReverseGeoCoding().execute(latLng);
     }

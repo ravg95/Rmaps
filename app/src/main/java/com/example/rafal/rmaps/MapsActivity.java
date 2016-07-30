@@ -11,6 +11,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
 
@@ -23,7 +24,7 @@ import java.net.URL;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
     private static final String TAG = MapsActivity.class.getSimpleName();
     private GoogleMap mMap;
-
+    private Marker p;
     private GoogleApiClient client;
 
     @Override
@@ -48,7 +49,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        mMap.addMarker(new MarkerOptions().position(latLng));
+        p = mMap.addMarker(new MarkerOptions().position(latLng));
         new ReverseGeoCoding().execute(latLng);
     }
 
@@ -97,6 +98,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected String doInBackground(LatLng... latLng) {
             String result = "";
+
             try {
                 URL url = new URL(
                         "http://maps.googleapis.com/maps/api/geocode/json?address=" + latLng[0].latitude + "," + latLng[0].longitude + "&sensor=true ");
@@ -133,7 +135,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            Log.d(TAG, "found address:: " + result);
+            p.setSnippet(result);
+            p.setTitle("Pin");
+            p.showInfoWindow();
         }
     }
 

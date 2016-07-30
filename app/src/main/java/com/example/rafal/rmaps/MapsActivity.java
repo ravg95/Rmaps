@@ -49,7 +49,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapLongClick(LatLng latLng) {
         mMap.addMarker(new MarkerOptions().position(latLng));
-        new GetGeoData().execute(latLng);
+        new ReverseGeoCoding().execute(latLng);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         client.disconnect();
     }
 
-    private class GetGeoData extends AsyncTask<LatLng, Void, String> {
+    private class ReverseGeoCoding extends AsyncTask<LatLng, Void, String> {
         @Override
         protected String doInBackground(LatLng... latLng) {
             String result = "";
@@ -133,6 +133,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
+            Log.d(TAG, "found address:: " + result);
+        }
+    }
+
+    private class GeoCoding extends AsyncTask<String, Void, LatLng> {
+        @Override
+        protected LatLng doInBackground(String... querry) {
+            LatLng result = new LatLng(0, 0);/*
+            try {
+                URL url = new URL(
+                        "http://maps.googleapis.com/maps/api/geocode/json?address=" + latLng[0].latitude + "," + latLng[0].longitude + "&sensor=true ");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "application/json");
+
+                if (conn.getResponseCode() != 200) {
+                    throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+                }
+                BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
+
+                String output, full = "";
+                while ((output = br.readLine()) != null) {
+                    System.out.println(output);
+                    full += output;
+                }
+
+                GoogleGeoCodeResponse gson = new Gson().fromJson(full, GoogleGeoCodeResponse.class);
+
+                try {
+                    result = gson.results[0].formatted_address;
+
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+                conn.disconnect();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }*/
+            return result;
+        }
+
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(LatLng result) {
             Log.d(TAG, "found address:: " + result);
         }
     }

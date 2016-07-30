@@ -2,4 +2,6 @@
     <string name="app_name">Rmaps</string>
     <string name="title_activity_maps">Map</string>
     <string name="splash">splash</string>
+    <string name="sarch">Search</string>
+    <string name="hint">Where to go?</string>
 </resources>

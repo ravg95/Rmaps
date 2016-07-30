@@ -16,20 +16,33 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:layout_weight="1"
         android:orientation="horizontal"
-        android:paddingTop="20dp"
-        android:weightSum="1">
+        android:paddingTop="20dp">
 
         <EditText
-            android:layout_width="253dp"
+            android:id="@+id/searchBox"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start"
+            android:hint="@string/hint"
+            android:inputType="text"
             android:singleLine="true" />
 
         <Button
-            android:layout_width="16dp"
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1.15"
-            android:text="Search" />
+            android:layout_gravity="right"
+            android:layout_marginLeft="0dp"
+            android:clickable="true"
+            android:enabled="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="start"
+            android:text="@string/sarch"
+            android:textAlignment="textStart" />
     </LinearLayout>
 
 </RelativeLayout>

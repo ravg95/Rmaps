@@ -5,15 +5,16 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -26,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener {
@@ -88,17 +90,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         AppIndex.AppIndexApi.start(client, viewAction);
         findViewById(R.id.searchBox).setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_ENTER) {
-                    Log.d(TAG, "ENTER!!");
-                    InputMethodManager inputManager =
-                            (InputMethodManager)
-                                    getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputManager.hideSoftInputFromWindow(
-                            getCurrentFocus().getWindowToken(),
-                            InputMethodManager.HIDE_NOT_ALWAYS);
-                    return false;
+                if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_UP) {
+                    performSearch();
+                    InputMethodManager inputManager = (InputMethodManager)
+                            getSystemService(Context.INPUT_METHOD_SERVICE);
+                    try {
+                        inputManager.hideSoftInputFromWindow(
+                                getCurrentFocus().getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
+                    return true;
                 }
-                return true;
+                return false;
             }
         });
     }
@@ -122,7 +127,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void performSearch() {
-        Log.d(TAG, "search is being performed!!!!");
+        try {
+            EditText eT = (EditText) findViewById(R.id.searchBox);
+            new GeoCoding().execute(eT.getText().toString());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
     private class ReverseGeoCoding extends AsyncTask<LatLng, Void, String> {
         @Override
@@ -165,19 +175,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            p.setSnippet(result);
-            p.setTitle("Pin");
+            p.setTitle(result);
             p.showInfoWindow();
         }
     }
 
-    private class GeoCoding extends AsyncTask<String, Void, LatLng> {
+    private class GeoCoding extends AsyncTask<String, Void, GoogleGeoCodeResponse> {
         @Override
-        protected LatLng doInBackground(String... querry) {
-            LatLng result = new LatLng(0, 0);/*
+        protected GoogleGeoCodeResponse doInBackground(String... querry) {
             try {
                 URL url = new URL(
-                        "http://maps.googleapis.com/maps/api/geocode/json?address=" + latLng[0].latitude + "," + latLng[0].longitude + "&sensor=true ");
+                        "http://maps.googleapis.com/maps/api/geocode/json?address=" + URLEncoder.encode(querry[0], "utf-8") + "&sensor=true ");
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Accept", "application/json");
@@ -194,24 +202,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 GoogleGeoCodeResponse gson = new Gson().fromJson(full, GoogleGeoCodeResponse.class);
-
-                try {
-                    result = gson.results[0].formatted_address;
-
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
                 conn.disconnect();
+                return gson;
             } catch (Exception e) {
                 e.printStackTrace();
-            }*/
-            return result;
+            }
+            return null;
         }
 
-        // onPostExecute displays the results of the AsyncTask.
+
         @Override
-        protected void onPostExecute(LatLng result) {
-            Log.d(TAG, "found address:: " + result);
+        protected void onPostExecute(GoogleGeoCodeResponse resp) {
+            LatLng pin = resp.results[0].geometry.location.getLatLng();
+            if (p != null)
+                p.remove();
+            p = mMap.addMarker(new MarkerOptions().position(pin).title("Result").snippet(resp.results[0].formatted_address));
+            p.showInfoWindow();
+            mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(resp.results[0].geometry.viewport.getBounds(), 15));
         }
     }
 }

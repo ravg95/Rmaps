@@ -25,6 +25,9 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:enabled="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:gravity="start"
             android:hint="@string/hint"
             android:inputType="text"
@@ -38,9 +41,8 @@
             android:layout_marginLeft="0dp"
             android:clickable="true"
             android:enabled="true"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
             android:gravity="start"
+            android:onClick="onSearchClick"
             android:text="@string/sarch"
             android:textAlignment="textStart" />
     </LinearLayout>

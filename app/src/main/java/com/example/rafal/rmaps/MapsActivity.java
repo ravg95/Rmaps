@@ -1,10 +1,17 @@
 package com.example.rafal.rmaps;
 
+import android.content.Context;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.View.OnKeyListener;
+import android.view.inputmethod.InputMethodManager;
 
+import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.GoogleMap;
@@ -47,8 +54,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapLongClickListener(this);
     }
 
-    public void onSearchClick() {
-
+    public void onSearchClick(View v) {
+        performSearch();
     }
 
     @Override
@@ -62,27 +69,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onStart() {
         super.onStart();
-/*
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Rmaps", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse(null),
-                // TODO: Make sure this auto-generated app deep link URI is correct.
-                Uri.parse("android-app://com.example.rafal.rmaps/http/host/path")
-        );
-        AppIndex.AppIndexApi.start(client, viewAction);*/
-    }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-    /*
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         Action viewAction = Action.newAction(
@@ -91,15 +81,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // TODO: If you have web page content that matches this app activity's content,
                 // make sure this auto-generated web page URL is correct.
                 // Otherwise, set the URL to null.
-                Uri.parse(null),
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://com.example.rafal.rmaps/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
+        findViewById(R.id.searchBox).setOnKeyListener(new OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER || keyCode == KeyEvent.KEYCODE_ENTER) {
+                    Log.d(TAG, "ENTER!!");
+                    InputMethodManager inputManager =
+                            (InputMethodManager)
+                                    getSystemService(Context.INPUT_METHOD_SERVICE);
+                    inputManager.hideSoftInputFromWindow(
+                            getCurrentFocus().getWindowToken(),
+                            InputMethodManager.HIDE_NOT_ALWAYS);
+                    return false;
+                }
+                return true;
+            }
+        });
+    }
+    @Override
+    public void onStop() {
+        super.onStop();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Maps Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
                 // TODO: Make sure this auto-generated app deep link URI is correct.
                 Uri.parse("android-app://com.example.rafal.rmaps/http/host/path")
         );
         AppIndex.AppIndexApi.end(client, viewAction);
-        */
         client.disconnect();
     }
 
+    private void performSearch() {
+        Log.d(TAG, "search is being performed!!!!");
+    }
     private class ReverseGeoCoding extends AsyncTask<LatLng, Void, String> {
         @Override
         protected String doInBackground(LatLng... latLng) {
